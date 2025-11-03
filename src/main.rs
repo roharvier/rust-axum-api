@@ -4,11 +4,15 @@ use axum::{
     routing::{get, post},
 };
 use serde::{Deserialize, Serialize};
+use std::env;
 
 #[tokio::main]
 async fn main() {
     // initialize tracing
     tracing_subscriber::fmt::init();
+
+    let port = env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+    let address = format!("0.0.0.0:{}", port);
 
     // build our application with a route
     let app = Router::new()
@@ -17,8 +21,8 @@ async fn main() {
         // `POST /users` goes to `create_user`
         .route("/users", post(create_user));
 
-    // run our app with hyper, listening globally on port 3000
-    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    // run our app with hyper, listening globally on port 8080
+    let listener = tokio::net::TcpListener::bind(address).await.unwrap();
     axum::serve(listener, app).await.unwrap();
 }
 
